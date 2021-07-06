@@ -1,0 +1,19 @@
+version: "3"
+services:
+    camera:
+        build:
+            context: .
+            dockerfile: Dockerfile.shell
+        network_mode: host
+        restart: always
+        volumes:
+            - /dev/bus/usb:/dev/bus/usb
+            - /opt/vc:/opt/vc
+            - /tmp/.X11-unix:/tmp/.X11-unix
+            - ./images:/home/pi/weeve/camera
+        environment:
+            LD_LIBRARY_PATH: /opt/vc/lib
+            DISPLAY:
+        devices:
+            - "/dev/vchiq:/dev/vchiq"
+        privileged: true
