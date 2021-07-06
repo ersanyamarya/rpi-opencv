@@ -1,0 +1,52 @@
+version: "3"
+services:
+    netdata:
+        image: netdata/netdata
+        container_name: netdata
+        hostname: $USER
+        ports:
+        - 19999:19999
+        restart: unless-stopped
+        cap_add:
+        - SYS_PTRACE
+        security_opt:
+        - apparmor:unconfined
+        environment:
+        - PGID=DOCKER_GROUP_ID
+        - DOCKER_HOST=proxy:2375
+        volumes:
+        - /etc/passwd:/host/etc/passwd:ro
+        - /etc/group:/host/etc/group:ro
+        - /proc:/host/proc:ro
+        - /sys:/host/sys:ro
+        - /etc/os-release:/host/etc/os-release:ro
+
+
+    # mosquitto:
+    #     image: eclipse-mosquitto
+    #     restart: unless-stopped
+    #     environment:
+    #     - USER=$USER
+    #     ports:
+    #     - 1883:1883
+    #     - 8080:8080
+    #     volumes:
+    #     - "./mosquitto/config:/mosquitto/config"
+    #     - "./mosquitto/data:/mosquitto/data"
+    #     - "./mosquitto/log:/mosquitto/log"
+
+    portainer:
+        image: portainer/portainer:alpine
+        command: -H tcp://proxy:2375
+        restart: always
+        ports:
+        - 80:9000
+        volumes:
+        - ./portainer/data:/data
+
+    proxy:
+        image: tecnativa/docker-socket-proxy
+        volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        environment:
+        - CONTAINERS=1
